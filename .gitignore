@@ -1,0 +1,80 @@
+# Ignore Maven & Gradle build directories
+target/
+build/
+
+# Ignore Maven Wrapper files except the required JAR
+.mvn/
+mvnw
+mvnw.cmd
+mvnw.bat
+maven-wrapper.jar
+maven-wrapper.properties
+
+# Ignore logs
+logs/
+*.log
+*.log.*
+
+# Ignore compiled class files
+*.class
+
+# Ignore the entire .idea folder
+.idea/
+
+# Except for specific configurations you want to keep
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
+!.idea/sonarlint/
+
+# Ignore IntelliJ project files but keep important configs
+*.iws
+*.iml
+*.ipr
+
+### Eclipse / STS ###
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans/
+.sts4-cache/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore temporary files
+*.swp
+*.swo
+
+# Ignore sensitive application configuration files
+application.properties
+application.yml
+application-dev.yml
+application-prod.yml
+
+# Ignore test reports & coverage reports
+surefire-reports/
+test-output/
+jacoco.exec
+
+# Ignore Docker-related files (if using Docker)
+docker-compose.override.yml
+.dockerignore
+
+# Ignore all OpenAPI-generated sources
+/generated/
+/generated/**
+/target/generated-sources/openapi/
+/target/generated-sources/openapi/**
