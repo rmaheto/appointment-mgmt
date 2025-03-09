@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: Appointment-Management
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/appointments_db
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+jwt:
+  secret: ${JWT_SECRET}  # Load secret from an external file
+  expiration: ${JWT_EXPIRATION:86400000}  # 24 hours in milliseconds
+
+stripe:
+  api:
+    key: ${STRIPE_API_KEY}  # Load from an external file
