@@ -53,12 +53,12 @@ This allows sensitive credentials (e.g., database passwords, API keys) to be man
 ---
 
 ##  ** SAMPLE API Endpoints**
-| Method | Endpoint                            | Description                       |
-|--------|-------------------------------------|-----------------------------------|
-| `GET`  | `/api/appointments/{appointmentId}` | Fetch all appointments            |
-| `GET`  | `/api/appointments/user/{userId}`   | Fetch all appointments for a user |
-| `POST` | `/api/appointments/initiate-booking`| Initiate a booking for a user     |
-| `POST` | `/api/appointments/reschedule`      | Reschedule an appointment         |
+| Method | Endpoint                                                 | Description                       |
+|--------|----------------------------------------------------------|-----------------------------------|
+| `GET`  | `/api/appointments/{appointmentId}`                      | Fetch an appointment by id        |
+| `GET`  | `/api/appointments/user/{userId}`                        | Fetch all appointments for a user |
+| `POST` | `/api/appointments/initiate-booking?userId=1&slotId=75`  | Initiate a booking for a user     |
+| `POST` | `/api/appointments/reschedule`                           | Reschedule an appointment         |
 
 ## Example Request (Initiate Booking)
 ** POST http://localhost:8080/api/appointments/initiate-booking?userId=1&slotId=5
