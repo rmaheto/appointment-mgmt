@@ -32,13 +32,13 @@ public class AppointmentSlotService {
    */
   @Transactional
   public void generateSlots(
-      Long appointmentTypeId,
-      LocalDate startDate,
-      LocalDate endDate,
-      LocalTime userStartTime,
-      LocalTime userEndTime) {
+      final Long appointmentTypeId,
+      final LocalDate startDate,
+      final LocalDate endDate,
+      final LocalTime userStartTime,
+      final LocalTime userEndTime) {
     // Fetch appointment type details
-    AppointmentType appointmentType =
+    final AppointmentType appointmentType =
         appointmentTypeRepository
             .findById(appointmentTypeId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid appointment type ID"));
@@ -54,14 +54,14 @@ public class AppointmentSlotService {
     }
 
     // Determine the final start and end times (use user input if provided, else defaults)
-    LocalTime finalStartTime =
+    final LocalTime finalStartTime =
         (userStartTime != null) ? userStartTime : appointmentType.getDefaultStartTime();
-    LocalTime finalEndTime =
+    final LocalTime finalEndTime =
         (userEndTime != null) ? userEndTime : appointmentType.getDefaultEndTime();
 
-    int slotDuration = appointmentType.getDurationMinutes(); // Get slot duration (e.g., 30 mins)
+    final int slotDuration = appointmentType.getDurationMinutes();
 
-    List<AppointmentSlot> newSlots = new ArrayList<>();
+    final List<AppointmentSlot> newSlots = new ArrayList<>();
 
     LocalDate currentDate = startDate;
     while (!currentDate.isAfter(endDate)) {
@@ -77,7 +77,7 @@ public class AppointmentSlotService {
       LocalTime slotTime = finalStartTime;
       while (slotTime.plusMinutes(slotDuration).isBefore(finalEndTime)
           || slotTime.plusMinutes(slotDuration).equals(finalEndTime)) {
-        AppointmentSlot slot = new AppointmentSlot();
+        final AppointmentSlot slot = new AppointmentSlot();
         slot.setDate(currentDate);
         slot.setStartTime(slotTime);
         slot.setEndTime(slotTime.plusMinutes(slotDuration));
@@ -90,10 +90,8 @@ public class AppointmentSlotService {
       currentDate = currentDate.plusDays(1);
     }
 
-    // Save generated slots
     slotRepository.saveAll(newSlots);
 
-    // Log event
     log.info(
         "Generated {} slots for appointment type '{}' from {} to {}",
         newSlots.size(),
@@ -102,13 +100,11 @@ public class AppointmentSlotService {
         endDate);
   }
 
-  /** Retrieves available slots for a specific date. */
-  public List<AppointmentSlot> getAvailableSlotsByDate(LocalDate date) {
-    return slotRepository.findByDateAndStatus(date, SlotStatus.AVAILABLE);
+  public List<AppointmentSlot> getAvailableSlotsByDateAndType(final LocalDate date, final Long appointmentTypeId) {
+    return slotRepository.findByDateAndStatusAndAppointmentTypeId(date, SlotStatus.AVAILABLE, appointmentTypeId);
   }
 
-  /** Retrieves available days in a given month. */
-  public List<LocalDate> getAvailableDaysInMonth(int year, int month) {
-    return slotRepository.findAvailableDaysInMonth(month, year);
+  public List<LocalDate> getAvailableDaysInMonth(final int year, final int month, final Long appointmentTypeId) {
+    return slotRepository.findAvailableDaysInMonthAndType(month, year, appointmentTypeId);
   }
 }

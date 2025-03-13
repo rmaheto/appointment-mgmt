@@ -1,5 +1,6 @@
 package com.codemaniac.appointment.service;
 
+import com.codemaniac.appointment.config.EmailService;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,7 @@ public class AuthService {
 
   private final AuthenticationManager authenticationManager;
   private final JwtUtil jwtUtil;
+  private final EmailService emailService;
 
   public String authenticateAndGenerateToken(final String username, final String password) {
 

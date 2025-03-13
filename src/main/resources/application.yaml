@@ -1,6 +1,20 @@
 spring:
   application:
     name: Appointment-Management
+  mail:
+    host: smtp.gmail.com  # Use your SMTP server (e.g., SendGrid, Amazon SES)
+    port: 587
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
   datasource:
     url: jdbc:mysql://localhost:3306/appointments_db
@@ -14,7 +28,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
+  batch:
+    job:
+      enabled: false   # Prevents jobs from running automatically on startup
+    jdbc:
+      initialize-schema: always   # Ensures batch tables are created
 jwt:
   secret: ${JWT_SECRET}  # Load secret from an external file
   expiration: ${JWT_EXPIRATION:86400000}  # 24 hours in milliseconds

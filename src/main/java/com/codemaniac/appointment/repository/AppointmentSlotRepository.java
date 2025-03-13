@@ -19,8 +19,9 @@ public interface AppointmentSlotRepository extends JpaRepository<AppointmentSlot
   List<AppointmentSlot> findByDateAndStatus(LocalDate date, SlotStatus status);
 
   // Fetch all available slots for a specific month
-  @Query("SELECT DISTINCT s.date FROM AppointmentSlot s WHERE FUNCTION('MONTH', s.date) = :month " +
-      "AND FUNCTION('YEAR', s.date) = :year AND s.status = 'AVAILABLE'")
+  @Query(
+      "SELECT DISTINCT s.date FROM AppointmentSlot s WHERE FUNCTION('MONTH', s.date) = :month "
+          + "AND FUNCTION('YEAR', s.date) = :year AND s.status = 'AVAILABLE'")
   List<LocalDate> findAvailableDaysInMonth(@Param("month") int month, @Param("year") int year);
 
   // Fetch a slot using pessimistic locking to prevent race conditions
@@ -37,4 +38,13 @@ public interface AppointmentSlotRepository extends JpaRepository<AppointmentSlot
   // Fetch all slots within a given date range
   List<AppointmentSlot> findByDateBetween(LocalDate startDate, LocalDate endDate);
 
+  List<AppointmentSlot> findByDateAndStatusAndAppointmentTypeId(
+      LocalDate date, SlotStatus status, Long appointmentTypeId);
+
+  @Query(
+      "SELECT DISTINCT s.date FROM AppointmentSlot s WHERE MONTH(s.date) = :month AND YEAR(s.date) = :year AND s.appointmentType.id = :appointmentTypeId AND s.status = 'AVAILABLE'")
+  List<LocalDate> findAvailableDaysInMonthAndType(
+      @Param("month") int month,
+      @Param("year") int year,
+      @Param("appointmentTypeId") Long appointmentTypeId);
 }

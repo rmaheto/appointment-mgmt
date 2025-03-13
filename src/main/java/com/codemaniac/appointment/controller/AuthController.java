@@ -18,8 +18,8 @@ public class AuthController {
   private final AuthService authService;
 
   @PostMapping("/login")
-  public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
-    String jwt =
+  public ResponseEntity<AuthResponse> login(@RequestBody final AuthRequest authRequest) {
+    final String jwt =
         authService.authenticateAndGenerateToken(
             authRequest.getUsername(), authRequest.getPassword());
 

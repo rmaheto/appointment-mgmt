@@ -23,14 +23,14 @@ public class AppointmentSlotController {
    */
   @PostMapping("/generate")
   public ResponseEntity<String> generateSlots(
-      @RequestParam Long appointmentTypeId,
-      @RequestParam String startDate,
-      @RequestParam String endDate,
-      @RequestParam(required = false) String startTime,
-      @RequestParam(required = false) String endTime) {
+      @RequestParam final Long appointmentTypeId,
+      @RequestParam final String startDate,
+      @RequestParam final String endDate,
+      @RequestParam(required = false) final String startTime,
+      @RequestParam(required = false) final String endTime) {
     try {
-      LocalTime parsedStartTime = (startTime != null) ? LocalTime.parse(startTime) : null;
-      LocalTime parsedEndTime = (endTime != null) ? LocalTime.parse(endTime) : null;
+      final LocalTime parsedStartTime = (startTime != null) ? LocalTime.parse(startTime) : null;
+      final LocalTime parsedEndTime = (endTime != null) ? LocalTime.parse(endTime) : null;
 
       slotService.generateSlots(
           appointmentTypeId,
@@ -39,16 +39,18 @@ public class AppointmentSlotController {
           parsedStartTime,
           parsedEndTime);
       return ResponseEntity.ok("Appointment slots generated successfully!");
-    } catch (IllegalStateException e) {
+    } catch (final IllegalStateException e) {
       return ResponseEntity.badRequest().body(e.getMessage());
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       return ResponseEntity.unprocessableEntity().body(e.getMessage());
     }
   }
 
   @GetMapping("/available")
-  public ResponseEntity<List<AppointmentSlot>> getAvailableSlots(@RequestParam String date) {
-    List<AppointmentSlot> slots = slotService.getAvailableSlotsByDate(LocalDate.parse(date));
+  public ResponseEntity<List<AppointmentSlot>> getAvailableSlots(
+      @RequestParam final String date, @RequestParam final Long appointmentTypeId) {
+    final List<AppointmentSlot> slots =
+        slotService.getAvailableSlotsByDateAndType(LocalDate.parse(date), appointmentTypeId);
     if (slots.isEmpty()) {
       return ResponseEntity.noContent().build();
     }
@@ -57,8 +59,11 @@ public class AppointmentSlotController {
 
   @GetMapping("/available-days")
   public ResponseEntity<List<LocalDate>> getAvailableDays(
-      @RequestParam int year, @RequestParam int month) {
-    List<LocalDate> availableDays = slotService.getAvailableDaysInMonth(year, month);
+      @RequestParam final int year,
+      @RequestParam final int month,
+      @RequestParam final Long appointmentTypeId) {
+    final List<LocalDate> availableDays =
+        slotService.getAvailableDaysInMonth(year, month, appointmentTypeId);
     if (availableDays.isEmpty()) {
       return ResponseEntity.noContent().build();
     }

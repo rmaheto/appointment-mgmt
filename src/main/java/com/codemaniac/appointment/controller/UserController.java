@@ -31,19 +31,19 @@ public class UserController {
 
   @GetMapping
   public ResponseEntity<List<UserResponseDto>> getAllUsers() {
-    List<UserResponseDto> users = userService.getAllUsers();
+    final List<UserResponseDto> users = userService.getAllUsers();
     return ResponseEntity.ok(users);
   }
 
   @GetMapping("/{userId}")
-  public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long userId) {
-    UserResponseDto user = userService.getUserById(userId);
+  public ResponseEntity<UserResponseDto> getUserById(@PathVariable final Long userId) {
+    final UserResponseDto user = userService.getUserById(userId);
     return ResponseEntity.ok(user);
   }
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   @PostMapping("/create")
-  public ResponseEntity<String> createUser(@RequestBody UserRequestDto userDto) {
+  public ResponseEntity<String> createUser(@RequestBody final UserRequestDto userDto) {
     userService.createUser(userDto);
     return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
   }
@@ -51,7 +51,7 @@ public class UserController {
   @PreAuthorize("authentication.principal.id == #userId or hasRole('ROLE_ADMIN')")
   @PatchMapping("/{userId}/update-password")
   public ResponseEntity<String> updatePassword(
-      @PathVariable Long userId, @RequestBody UpdatePasswordRequest passwordRequest) {
+      @PathVariable final Long userId, @RequestBody final UpdatePasswordRequest passwordRequest) {
     userService.updatePassword(userId, passwordRequest);
     return ResponseEntity.ok("Password updated successfully");
   }
@@ -59,13 +59,13 @@ public class UserController {
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   @PatchMapping("/users/{userId}/roles")
   public ResponseEntity<UserResponseDto> updateUserRoles(
-      @PathVariable Long userId, @RequestBody Set<RoleName> newRoles) {
+      @PathVariable final Long userId, @RequestBody final Set<RoleName> newRoles) {
 
     return new ResponseEntity<>(userService.updateUserRoles(userId, newRoles), HttpStatus.OK);
   }
 
   @GetMapping("/role/{roleName}")
-  public ResponseEntity<List<UserResponseDto>> getUsersByRole(@PathVariable String roleName) {
+  public ResponseEntity<List<UserResponseDto>> getUsersByRole(@PathVariable final String roleName) {
 
     return ResponseEntity.ok(userService.getUsersByRole(roleName));
   }
