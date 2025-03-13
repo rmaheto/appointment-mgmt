@@ -1,11 +1,11 @@
 # Appointment Management System
 
 The Appointment Management System is a Spring Boot application designed for efficient appointment scheduling and management. It includes:
-✅ JWT authentication for secure access control
-✅ Stripe API integration for seamless payment processing
-✅ Externalized configuration to securely manage sensitive credentials and environment-specific settings
+- JWT authentication for secure access control 
+- Stripe API integration for seamless payment processing 
+- Externalized configuration to securely manage sensitive credentials and environment-specific settings
 
-🔐 Secure External Configuration
+Secure External Configuration
 The application loads sensitive credentials (e.g., database passwords, API keys) from an external properties file, ensuring security and flexibility.
 This properties file is stored outside the project directory to prevent accidental exposure in version control.
 
@@ -25,7 +25,7 @@ Location To Place propertiesFile
 To start Tomcat: clean install cargo:run
 Debugging port: 8001
 
-## Accessing the Application**
+## Accessing the Application
     - Generate JWT token using this endpoint:
       ```
       localhost:8080/appointment-mgmt/api/auth/login
