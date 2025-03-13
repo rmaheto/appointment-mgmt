@@ -1,43 +1,31 @@
 # Appointment Management System
 
-## Overview
-The **Appointment Management System** is a Spring Boot application designed to manage appointments efficiently.  
-It integrates **JWT authentication** for security, **Stripe API** for payments, and supports **externalized configuration** for credentials and environment-specific settings.
+The Appointment Management System is a Spring Boot application designed for efficient appointment scheduling and management. It includes:
+✅ JWT authentication for secure access control
+✅ Stripe API integration for seamless payment processing
+✅ Externalized configuration to securely manage sensitive credentials and environment-specific settings
+
+🔐 Secure External Configuration
+The application loads sensitive credentials (e.g., database passwords, API keys) from an external properties file, ensuring security and flexibility.
+This properties file is stored outside the project directory to prevent accidental exposure in version control.
+
+To clone the app to local computer: git clone https://github.com/rmaheto/appointment-mgmt.git
 
 ---
+## Build/Installation
+Prerequisites
+- Ensure **Java 17+** and **MySQL** are installed.
+- Ensure **Maven** is installed (`mvn -version` to check).
+- properties file (file containing Passwords) inside the `/keys/` directory (one level above the project directory).
+Location To Place propertiesFile
+- /keys/appt_mgmt_credentials_<profile>.properties Where `<profile>` represents the active Spring profile, such as `desktop`, `dev`, or `prod`.
+- C:\keys\appt_mgmt_credentials_desktop.properties  (Windows)
 
-## Configuration
+## Running the Application locally
+To start Tomcat: clean install cargo:run
+Debugging port: 8001
 
-### **External Properties File**
-The application supports external configuration through a **properties file** stored outside the project.  
-This allows sensitive credentials (e.g., database passwords, API keys) to be managed securely.
-
- **Location:**  
-/keys/appt_mgmt_credentials_<profile>.properties Where `<profile>` represents the active Spring profile, such as `desktop`, `dev`, or `prod`.
-**Example: `appt_mgmt_credentials_dev.properties`**
-
----
-## **How to Run the Application**
-1. **Prerequisites**
-    - Ensure **Java 17+** and **MySQL** are installed.
-    - Ensure **Maven** is installed (`mvn -version` to check).
-    - Ensure the external properties file is placed correctly.
-
-2. **Setup Configuration**
-    - Place the **properties file** inside the `/keys/` directory (one level above the project directory).
-    - Example path:
-      ```
-      C:\keys\appt_mgmt_credentials_dev.properties  (Windows)
-      /home/user/keys/appt_mgmt_credentials_dev.properties  (Linux/Mac)
-      ```
-
-3. **Run the Application**
-    - Use Maven to build and start the application with an embedded Tomcat server using Cargo:
-      ```sh
-      mvn clean install cargo:run
-      ```
-
-4. **Access the Application**
+## Accessing the Application**
     - Generate JWT token using this endpoint:
       ```
       localhost:8080/appointment-mgmt/api/auth/login
@@ -52,7 +40,7 @@ This allows sensitive credentials (e.g., database passwords, API keys) to be man
       ```
 ---
 
-##  ** SAMPLE API Endpoints**
+## SAMPLE API Endpoints
 | Method | Endpoint                                                 | Description                       |
 |--------|----------------------------------------------------------|-----------------------------------|
 | `GET`  | `/api/appointments/{appointmentId}`                      | Fetch an appointment by id        |
