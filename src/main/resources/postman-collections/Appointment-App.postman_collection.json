@@ -1,0 +1,300 @@
+{
+	"info": {
+		"_postman_id": "3a7067de-a030-4d64-a314-8457c6a87384",
+		"name": "Appointment-App",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24422699"
+	},
+	"item": [
+		{
+			"name": "GET JWT",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"admin\",\r\n  \"password\": \"admin\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/appointment-mgmt/api/auth/login",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"appointment-mgmt",
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ADD User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"test2\",\r\n  \"password\": \"test2\",\r\n  \"roles\": [\"ROLE_USER\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/appointment-mgmt/api/users/create",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"appointment-mgmt",
+						"api",
+						"users",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET Appointment All Types",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/appointment-mgmt/api/appointment-types",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"appointment-mgmt",
+						"api",
+						"appointment-types"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Appointment Type",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Visa\",\r\n  \"description\": \"Appointment for visa interview at the embassy.\",\r\n  \"durationMinutes\": 30,\r\n  \"isWeekendAllowed\": false,\r\n  \"maxReschedules\": 5,\r\n  \"defaultStartTime\": \"08:00:00\",\r\n  \"defaultEndTime\": \"15:00:00\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/appointment-mgmt/api/appointment-types",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"appointment-mgmt",
+						"api",
+						"appointment-types"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generate Appointment Slots",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "appointmentTypeId",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "startDate",
+							"value": "2025-04-01",
+							"type": "text"
+						},
+						{
+							"key": "endDate",
+							"value": "2025-04-30",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/appointment-mgmt/api/slots/generate",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"appointment-mgmt",
+						"api",
+						"slots",
+						"generate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Initiate Appointment Booking",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "appointmentTypeId",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "startDate",
+							"value": "2025-03-03",
+							"type": "text"
+						},
+						{
+							"key": "endDate",
+							"value": "2025-03-31",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/appointments/initiate-booking?userId=1&slotId=75",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"appointments",
+						"initiate-booking"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "1"
+						},
+						{
+							"key": "slotId",
+							"value": "75"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET Appointment Slots",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "appointmentTypeId",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "startDate",
+							"value": "2024-03-01",
+							"type": "text"
+						},
+						{
+							"key": "endDate",
+							"value": "2024-03-31",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/appointment-mgmt/api/slots/available?date=2025-03-10&appointmentTypeId=1",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"appointment-mgmt",
+						"api",
+						"slots",
+						"available"
+					],
+					"query": [
+						{
+							"key": "date",
+							"value": "2025-03-10"
+						},
+						{
+							"key": "appointmentTypeId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwiaWF0IjoxNzQxODI5NTc2LCJleHAiOjE3NDE5MTU5NzZ9.Rhd0Q7stStxRlm8RR7aByEJs2hjxyixWjlYgzC9bDkE",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
