@@ -126,6 +126,12 @@
     </dependency>
     <!--    End Spring framework dependencies-->
 
+    <!--    For encryption and decryption-->
+    <dependency>
+      <groupId>org.jasypt</groupId>
+      <artifactId>jasypt</artifactId>
+      <version>1.9.3</version>
+    </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jsr310</artifactId>

@@ -1,6 +1,8 @@
 package com.codemaniac.appointment.config;
 
 import com.codemaniac.appointment.Util.EncryptionUtil;
+import com.codemaniac.appointment.exception.PropertyEncryptionException;
+import jakarta.annotation.Nonnull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -16,7 +18,9 @@ import org.springframework.core.env.Environment;
 
 @Configuration
 @Slf4j
-public class ExternalPropertiesConfig {
+class ExternalPropertiesConfig {
+
+  private static final String ENCRYPTION_SECRET_KEY = "ENCRYPTION_SECRET_KEY";
 
   @Bean
   public static PropertySourcesPlaceholderConfigurer propertyConfigurer(
@@ -25,89 +29,122 @@ public class ExternalPropertiesConfig {
     final PropertySourcesPlaceholderConfigurer configurer =
         new PropertySourcesPlaceholderConfigurer();
 
-    // First, try to get the encryption key from the environment variable
-    String secretKey = System.getenv("ENCRYPTION_SECRET_KEY");
+    try {
 
-    if (secretKey == null || secretKey.isEmpty()) {
-      log.warn("ENCRYPTION_SECRET_KEY not found in environment variables. Falling back to properties file.");
-    }
+      final String activeProfile = getActiveProfile(environment);
+      final String externalFilePath = getExternalFilePath(activeProfile);
+      final File externalFile = new File(externalFilePath);
 
-    final String activeProfile =
-        Optional.of(environment.getActiveProfiles())
-            .filter(profiles -> profiles.length > 0)
-            .map(profiles -> profiles[0])
-            .orElse("default");
-
-    final String externalFilePath =
-        Paths.get(File.separator + "keys", "appt_mgmt_credentials_" + activeProfile + ".properties")
-            .toAbsolutePath()
-            .toString();
-
-    final File externalFile = new File(externalFilePath);
-
-    if (externalFile.exists()) {
-      log.info("Loading external properties from: {}", externalFilePath);
-
-      try {
-        final Properties properties = new Properties();
-        properties.load(new FileInputStream(externalFile));
-
-        // If environment variable is missing, read from properties file
-        if (secretKey == null || secretKey.isEmpty()) {
-          secretKey = properties.getProperty("ENCRYPTION_SECRET_KEY");
-        }
-
-        if (secretKey == null || secretKey.isEmpty()) {
-          throw new RuntimeException("ENCRYPTION_SECRET_KEY is missing. Set it as an environment variable or in the properties file.");
-        }
-
-        boolean updated = false;
-
-        // Iterate over properties and check for unencrypted values
-        for (final String key : properties.stringPropertyNames()) {
-          final String value = properties.getProperty(key);
-
-          if (key.endsWith(".key") && !EncryptionUtil.isEncrypted(value)) {
-            // Encrypt the value and update properties
-            final String encryptedValue = EncryptionUtil.encrypt(secretKey, value);
-            properties.setProperty(key, encryptedValue);
-            updated = true;
-            log.info("Encrypting property: {}", key);
-          }
-        }
-
-        // Save updated properties if changes were made
-        if (updated) {
-          try (final FileOutputStream outputStream = new FileOutputStream(externalFile)) {
-            properties.store(outputStream, "Updated with encrypted values");
-            log.info("Updated properties file with encrypted values.");
-          }
-        }
-
-        // Decrypt values before setting them in Spring
-        final Properties decryptedProperties = new Properties();
-        final String finalSecretKey = secretKey;
-        properties.forEach((key, value) -> {
-          final String keyStr = key.toString();
-          final String valueStr = value.toString();
-          if (keyStr.endsWith(".key")) {
-            decryptedProperties.setProperty(keyStr, EncryptionUtil.decrypt(finalSecretKey, valueStr));
-          } else {
-            decryptedProperties.setProperty(keyStr, valueStr);
-          }
-        });
-
-        configurer.setProperties(decryptedProperties);
-
-      } catch (final IOException e) {
-        log.error("Failed to load external properties: {}", e.getMessage());
+      if (!externalFile.exists()) {
+        log.warn(
+            "External properties file not found: {}. Using internal properties.", externalFilePath);
+        return configurer;
       }
-    } else {
-      log.warn("External properties file not found: {}. Using internal properties.", externalFilePath);
+
+      log.info("Loading external properties from: {}", externalFilePath);
+      final Properties properties = loadPropertiesFromFile(externalFile);
+
+      final String secretKey = getSecretKey(properties);
+      encryptUnencryptedProperties(properties, secretKey, externalFile);
+      final Properties decryptedProperties = decryptProperties(properties, secretKey);
+      configurer.setProperties(decryptedProperties);
+    } catch (final Exception e) {
+      log.error("Error while loading external properties", e);
+      throw new PropertyEncryptionException("Error while loading external properties", e);
     }
 
     configurer.setIgnoreResourceNotFound(true);
     configurer.setIgnoreUnresolvablePlaceholders(true);
     return configurer;
+  }
+
+  /** Retrieve the active Spring profile */
+  private static String getActiveProfile(@Nonnull final Environment environment) {
+    return Optional.of(environment.getActiveProfiles())
+        .filter(profiles -> profiles.length > 0)
+        .map(profiles -> profiles[0])
+        .orElse("default");
+  }
+
+  /** Construct the external properties file path */
+  private static String getExternalFilePath(@Nonnull final String activeProfile) {
+    return Paths.get(
+            File.separator + "keys", "appt_mgmt_credentials_" + activeProfile + ".properties")
+        .toAbsolutePath()
+        .toString();
+  }
+
+  /** Load properties from the external file */
+  private static Properties loadPropertiesFromFile(final File externalFile) {
+    final Properties properties = new Properties();
+    try (final FileInputStream inputStream = new FileInputStream(externalFile)) {
+      properties.load(inputStream);
+    } catch (final IOException e) {
+      log.error("Failed to load external properties: {}", e.getMessage());
+      throw new PropertyEncryptionException("Failed to load external properties", e);
+    }
+    return properties;
+  }
+
+  /** Retrieve the encryption key from environment variables or properties file */
+  private static String getSecretKey(@Nonnull final Properties properties) {
+    String secretKey = System.getenv(ENCRYPTION_SECRET_KEY);
+
+    if (secretKey == null || secretKey.isEmpty()) {
+      secretKey = properties.getProperty(ENCRYPTION_SECRET_KEY);
+    }
+
+    if (secretKey == null || secretKey.isEmpty()) {
+      throw new PropertyEncryptionException(
+          "ENCRYPTION_SECRET_KEY is missing. Set it as an environment variable or in the properties file.");
+    }
+
+    return secretKey;
+  }
+
+  /** Encrypt unencrypted properties and save them back to the file */
+  @SuppressWarnings("squid:S3329")
+  private static void encryptUnencryptedProperties(
+      @Nonnull final Properties properties,
+      @Nonnull final String secretKey,
+      @Nonnull final File externalFile) {
+
+    boolean updated = false;
+
+    for (final String key : properties.stringPropertyNames()) {
+      final String value = properties.getProperty(key);
+
+      if (key.endsWith(".key") && !EncryptionUtil.isEncrypted(value)) {
+        properties.setProperty(key, EncryptionUtil.encrypt(secretKey, value));
+        updated = true;
+        log.info("Encrypting property: {}", key);
+      }
+    }
+
+    if (updated) {
+      try (final FileOutputStream outputStream = new FileOutputStream(externalFile)) {
+        properties.store(outputStream, "Updated with encrypted values");
+        log.info("Updated properties file with encrypted values.");
+      } catch (final IOException e) {
+        log.error("Failed to update encrypted properties: {}", e.getMessage());
+      }
+    }
+  }
+
+  /** Decrypt encrypted properties before setting them in Spring */
+  private static Properties decryptProperties(
+      @Nonnull final Properties properties, @Nonnull final String secretKey) {
+    final Properties decryptedProperties = new Properties();
+    properties.forEach(
+        (key, value) -> {
+          final String keyStr = key.toString();
+          final String valueStr = value.toString();
+          if (keyStr.endsWith(".key")) {
+            decryptedProperties.setProperty(keyStr, EncryptionUtil.decrypt(secretKey, valueStr));
+          } else {
+            decryptedProperties.setProperty(keyStr, valueStr);
+          }
+        });
+    return decryptedProperties;
   }
 }
