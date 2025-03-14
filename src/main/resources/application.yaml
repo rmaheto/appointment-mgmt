@@ -5,7 +5,7 @@ spring:
     host: smtp.gmail.com  # Use your SMTP server (e.g., SendGrid, Amazon SES)
     port: 587
     username: ${EMAIL_USERNAME}
-    password: ${EMAIL_PASSWORD}
+    password: ${EMAIL_PASSWORD.key}
     properties:
       mail:
         smtp:
@@ -19,7 +19,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/appointments_db
     username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    password: ${DB_PASSWORD.key}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -34,9 +34,9 @@ spring:
     jdbc:
       initialize-schema: always   # Ensures batch tables are created
 jwt:
-  secret: ${JWT_SECRET}  # Load secret from an external file
+  secret: ${JWT_SECRET.key}  # Load secret from an external file
   expiration: ${JWT_EXPIRATION:86400000}  # 24 hours in milliseconds
 
 stripe:
   api:
-    key: ${STRIPE_API_KEY}  # Load from an external file
+    key: ${STRIPE_API_KEY.key}  # Load from an external file
