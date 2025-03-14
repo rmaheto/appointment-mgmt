@@ -34,7 +34,7 @@ spring:
     jdbc:
       initialize-schema: always   # Ensures batch tables are created
 jwt:
-  secret: ${JWT_SECRET.key}  # Load secret from an external file
+  secret: ${ENCRYPTION_SECRET_KEY}  # Load secret from an external file
   expiration: ${JWT_EXPIRATION:86400000}  # 24 hours in milliseconds
 
 stripe:

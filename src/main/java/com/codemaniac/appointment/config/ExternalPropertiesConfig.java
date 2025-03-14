@@ -25,6 +25,13 @@ public class ExternalPropertiesConfig {
     final PropertySourcesPlaceholderConfigurer configurer =
         new PropertySourcesPlaceholderConfigurer();
 
+    // First, try to get the encryption key from the environment variable
+    String secretKey = System.getenv("ENCRYPTION_SECRET_KEY");
+
+    if (secretKey == null || secretKey.isEmpty()) {
+      log.warn("ENCRYPTION_SECRET_KEY not found in environment variables. Falling back to properties file.");
+    }
+
     final String activeProfile =
         Optional.of(environment.getActiveProfiles())
             .filter(profiles -> profiles.length > 0)
@@ -45,6 +52,15 @@ public class ExternalPropertiesConfig {
         final Properties properties = new Properties();
         properties.load(new FileInputStream(externalFile));
 
+        // If environment variable is missing, read from properties file
+        if (secretKey == null || secretKey.isEmpty()) {
+          secretKey = properties.getProperty("ENCRYPTION_SECRET_KEY");
+        }
+
+        if (secretKey == null || secretKey.isEmpty()) {
+          throw new RuntimeException("ENCRYPTION_SECRET_KEY is missing. Set it as an environment variable or in the properties file.");
+        }
+
         boolean updated = false;
 
         // Iterate over properties and check for unencrypted values
@@ -53,10 +69,10 @@ public class ExternalPropertiesConfig {
 
           if (key.endsWith(".key") && !EncryptionUtil.isEncrypted(value)) {
             // Encrypt the value and update properties
-            final String encryptedValue = EncryptionUtil.encrypt(value);
+            final String encryptedValue = EncryptionUtil.encrypt(secretKey, value);
             properties.setProperty(key, encryptedValue);
             updated = true;
-            log.info("🔒 Encrypting property: {}", key);
+            log.info("Encrypting property: {}", key);
           }
         }
 
@@ -70,11 +86,12 @@ public class ExternalPropertiesConfig {
 
         // Decrypt values before setting them in Spring
         final Properties decryptedProperties = new Properties();
+        final String finalSecretKey = secretKey;
         properties.forEach((key, value) -> {
           final String keyStr = key.toString();
           final String valueStr = value.toString();
           if (keyStr.endsWith(".key")) {
-            decryptedProperties.setProperty(keyStr, EncryptionUtil.decrypt(valueStr));
+            decryptedProperties.setProperty(keyStr, EncryptionUtil.decrypt(finalSecretKey, valueStr));
           } else {
             decryptedProperties.setProperty(keyStr, valueStr);
           }

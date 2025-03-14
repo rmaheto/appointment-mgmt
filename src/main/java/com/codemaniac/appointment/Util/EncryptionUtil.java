@@ -8,20 +8,19 @@ import javax.crypto.spec.SecretKeySpec;
 public class EncryptionUtil {
 
   private static final String ALGORITHM = "AES";
-  private static final String SECRET_KEY = "MySuperSecretKey";
 
   public static boolean isEncrypted(final String value) {
     return value.startsWith("ENC(") && value.endsWith(")");
   }
 
   // Encrypt a value (only if not already encrypted)
-  public static String encrypt(final String value) {
+  public static String encrypt(final String secretKey, final String value) {
     try {
       if (isEncrypted(value)) {
-        return value;
+        return value; // Skip encryption if already encrypted
       }
 
-      final SecretKeySpec keySpec = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+      final SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), ALGORITHM);
       final Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
       cipher.init(Cipher.ENCRYPT_MODE, keySpec);
       final byte[] encrypted = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
@@ -33,14 +32,14 @@ public class EncryptionUtil {
   }
 
   // Decrypt a value
-  public static String decrypt(final String encryptedValue) {
+  public static String decrypt(final String secretKey, final String encryptedValue) {
     try {
       if (!isEncrypted(encryptedValue)) {
         return encryptedValue;
       }
 
-      final String base64Encoded = encryptedValue.substring(4, encryptedValue.length() - 1); // Remove ENC( ... )
-      final SecretKeySpec keySpec = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+      final String base64Encoded = encryptedValue.substring(4, encryptedValue.length() - 1); // Remove ENC(...)
+      final SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), ALGORITHM);
       final Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
       cipher.init(Cipher.DECRYPT_MODE, keySpec);
 
