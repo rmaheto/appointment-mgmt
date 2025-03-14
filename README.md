@@ -16,6 +16,25 @@ To clone the app to local computer: git clone https://github.com/rmaheto/appoint
 Prerequisites
 - Ensure **Java 17+** and **MySQL** are installed.
 - Ensure **Maven** is installed (`mvn -version` to check).
+- Update Environment Variable in Windows Command Prompt 
+- Set environment variable for encryption and decryption permanently with this command: 
+
+```
+  - Windows: 
+    setx ENCRYPTION_SECRET_KEY {placeSecretHere}
+    
+  - Mac/Linux: Depending on the shell you're using, add the following line to the corresponding file
+    echo 'export ENCRYPTION_SECRET_KEY={placeHolderForSecret}' >> ~/.bashrc
+    source ~/.bashrc
+    
+    echo 'export ENCRYPTION_SECRET_KEY={placeHolderForSecret}' >> ~/.bash_profile
+    source ~/.bash_profile
+    
+    echo 'export ENCRYPTION_SECRET_KEY={placeHolderForSecret}' >> ~/.zshrc
+    source ~/.zshrc
+
+ ```
+
 - properties file (file containing Passwords) inside the `/keys/` directory (one level above the project directory).
 Location To Place propertiesFile
 - /keys/appt_mgmt_credentials_<profile>.properties Where `<profile>` represents the active Spring profile, such as `desktop`, `dev`, or `prod`.
